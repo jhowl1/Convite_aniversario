@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Convite Interativo - Festa na Chácara Martins</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --verde:#006400;
+      --verde2:#228b22;
+      --vermelho:#f00;
+      --bg1:#004d00;
+      --bg2:#012b12;
+    }
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+      background: radial-gradient(circle at top, var(--bg1), var(--bg2));
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    .espuma {
+      width: 100%;
+      height: 90px;
+      background: repeating-radial-gradient(circle at 10px 10px, #fff, #fff 20px, #f5f5f5 22px);
+      border-bottom: 5px solid #d32f2f;
+    }
+    .quiz, .convite {
+      background: #fff;
+      border-radius: 20px;
+      padding: 35px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      max-width: 750px;
+      margin: 50px auto;
+      border: 6px solid var(--verde);
+      color: #222;
+      animation: fadeIn 0.8s ease-in;
+    }
+    .convite { display: none; }
+    h1, h2 {
+      color: var(--verde);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 10px 0;
+    }
+    p { margin: 8px 0; }
+    button {
+      margin: 12px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      background: var(--verde);
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s, background 0.3s;
+    }
+    button:hover { background: var(--verde2); transform: scale(1.06) rotate(-2deg); }
+    .msgErro {
+      background: #ffebee;
+      color: #b71c1c;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-weight: bold;
+      animation: fadeIn 0.4s ease-in;
+    }
+    .rodape {
+      margin-top: 25px;
+      font-style: italic;
+      color: var(--verde);
+      font-weight: bold;
+    }
+    .confete {
+      position: fixed;
+      width: 12px;
+      height: 16px;
+      top: -20px;
+      border-radius: 3px;
+      animation: cair 3.5s forwards;
+      opacity: 0.9;
+      z-index: 9999;
+    }
+    @keyframes cair {
+      to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+    .balao {
+      position: fixed;
+      bottom: -100px;
+      width: 40px;
+      height: 60px;
+      background: red;
+      border-radius: 50%;
+      animation: subir 8s linear;
+      box-shadow: inset -6px -10px 0 rgba(0,0,0,0.15);
+      z-index: 9998;
+    }
+    @keyframes subir {
+      from { transform: translateY(100vh); opacity: 0.85; }
+      to { transform: translateY(-120vh); opacity: 0; }
+    }
+    .brilho {
+      animation: brilho 2s infinite alternate;
+    }
+    @keyframes brilho {
+      from { color: var(--verde); text-shadow: 0 0 5px #fff; }
+      to { color: var(--verde2); text-shadow: 0 0 14px var(--vermelho); }
+    }
+    .alerta {
+      color: var(--vermelho);
+      font-weight: bold;
+      animation: piscar 1s infinite alternate;
+    }
+    @keyframes piscar {
+      from { opacity: 0.25; }
+      to { opacity: 1; }
+    }
+    a { color: var(--verde); font-weight: bold; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid var(--verde);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="espuma"></div>
+
+  <!-- Quiz -->
+  <div class="quiz" id="quiz">
+    <h2>🍺 Responda para abrir o convite 🍺</h2>
+    <p>Qual é a senha secreta pra entrar na festa da Chácara Martins?</p>
+    <button onclick="checkAnswer('correto')">🍺 Mais uma gelada!</button>
+    <button onclick="checkAnswer('errado','salada')">🥗 Quero salada sem molho</button>
+    <button onclick="checkAnswer('errado','valsa')">🕺 Vamos dançar valsa</button>
+    <div id="mensagemErro"></div>
+  </div>
+
+  <!-- Convite -->
+  <div class="convite" id="convite">
+    <h1>🍻 Valeu por acertar! 🍻</h1>
+    <p class="brilho"><strong>Data:</strong> 27 de Fevereiro de 2026</p>
+    <p><strong>Horário:</strong> A partir das 15h</p>
+    <p><strong>Local:</strong> Chácara Martins</p>
+    <p><a href="https://maps.google.com?q=Chácara+Martins" target="_blank">📍 Ver no mapa</a></p>
+
+    <h2>⏳ Faltam:</h2>
+    <p id="contador"></p>
+
+    <h2>🥳 Confirmados:</h2>
+    <p><strong>+99 pessoas já garantiram presença 🍺🔥</strong></p>
+
+    <h2>✅ Confirmar presença</h2>
+    <select id="mensagem">
+      <option value="Confirmado! Já tô preparando o fígado pra muita Heineken na Chácara Martins 🍺😅">Mensagem 1</option>
+      <option value="Presença confirmada! Já separei o cooler e treinei o braço pra levantar Heineken 🍺💪😅">Mensagem 2</option>
+      <option value="Tô dentro! Se faltar cerveja, a culpa não é minha 🍻😂">Mensagem 3</option>
+      <option value="Confirmo presença! Vou levar minha sede e minha fome de churrasco 🍖🍺🤣">Mensagem 4</option>
+      <option value="Presença garantida! Só não garanto voltar sóbrio 🍺🤪">Mensagem 5</option>
+      <option value="Confirmado! Já avisei o fígado que vai ser feriado prolongado 🍻🎉">Mensagem 6</option>
+      <option value="Tô dentro! Se não tiver Heineken, eu levo a minha 🍺😉">Mensagem 7</option>
+    </select>
+    <p><button onclick="confirmar()">Enviar pelo WhatsApp</button></p>
+
+    <h2>🎲 Roleta da sorte</h2>
+    <button onclick="roleta()">Girar</button>
+    <p id="resultadoRoleta"></p>
+
+    <h2>🎲 Frase surpresa</h2>
+    <button onclick="fraseAleatoria()">Clique e descubra</button>
+    <p id="frase"></p>
+
+    <p class="alerta">🚨 Última chance de confirmar antes que acabe a cerveja 🍻😂 🚨</p>
+
+    <div class="rodape">✨ Entrada gratuita, saída só com ajuda do Uber 🚗🍺😂 ✨</div>
+  </div>
+
+  <script>
+    let tentativas = 0;
+
+    function checkAnswer(resposta, tipo) {
+      if (resposta === 'correto') {
+        document.getElementById('quiz').style.display = 'none';
+        document.getElementById('convite').style.display = 'block';
+        soltarConfetes();
+        criarBaloes();
+        iniciarContagem();
+      } else {
+        tentativas++;
+        let msg = '';
+        if (tipo === 'salada') msg = "❌ Aqui a única salada é de batata com maionese 🍻😂";
+        if (tipo === 'valsa') msg = "❌ Errado! Aqui ninguém dança valsa, só samba depois da terceira gelada 🕺🤣";
+        if (tentativas >= 3) msg = "❌ Tá difícil hein… melhor treinar o fígado antes da festa 🍺🤣";
+        document.getElementById('mensagemErro').innerHTML = `<div class="msgErro">${msg}</div>`;
+      }
+    }
+
+    function soltarConfetes() {
+      const cores = ['#f00','#00f','#0f0','#ff7f00','#8a2be2']; // sem amarelo
+      for (let i = 0; i < 60; i++) {
+        const confete = document.createElement('div');
+        confete.className = 'confete';
+        confete.style.left = Math.random() * window.innerWidth + 'px';
+        confete.style.background = cores[Math.floor(Math.random()*cores.length)];
+        confete.style.animationDuration = (Math.random()*2.5 + 2.2) + 's';
+        confete.style.transform = `rotate(${Math.random()*180}deg)`;
+        document.body.appendChild(confete);
+        setTimeout(()=>confete.remove(), 4500);
+      }
+    }
+
+    function criarBaloes() {
+      const cores = ['#e53935','#1e88e5','#43a047','#8e24aa','#ff7f00']; // sem amarelo puro
+      for (let i = 0; i < 12; i++) {
+        const balao = document.createElement('div');
+        balao.className = 'balao';
+        balao.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+        balao.style.background = cores[Math.floor(Math.random()*cores.length)];
+        balao.style.animationDuration = (Math.random()*4 + 6) + 's';
+        document.body.appendChild(balao);
+        setTimeout(()=>balao.remove(), 11000);
+      }
+    }
+
+    function iniciarContagem() {
+      // Data ajustada para fevereiro
+      const dataFesta = new Date("February 27, 2026 15:00:00").getTime();
+      const timer = setInterval(function() {
+        const agora = new Date().getTime();
+        const distancia = dataFesta - agora;
+
+        const dias = Math.floor(distancia / (1000*60*60*24));
+        const horas = Math.floor((distancia % (1000*60*60*24)) / (1000*60*60));
+        const minutos = Math.floor((distancia % (1000*60*60)) / (1000*60));
+        const segundos = Math.floor((distancia % (1000*60)) / 1000);
+
+        const el = document.getElementById("contador");
+        if (!el) return;
+
+        if (distancia >= 0) {
+          el.textContent = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+        } else {
+          clearInterval(timer);
+          el.textContent = "🎉 Já começou a festa! 🍻";
+        }
+      }, 1000);
+    }
+
+    function confirmar() {
+      const msg = document.getElementById("mensagem").value;
+      const url = "https://wa.me/?text=" + encodeURIComponent(msg);
+      window.open(url, "_blank");
+    }
+
+    function roleta() {
+      const frases = [
+        "Hoje você paga a rodada 🍺😂",
+        "Hoje você só bebe de graça 🍻🔥",
+        "Você ganhou churrasco extra 🍖😅",
+        "Rodada dupla pra você 🍺🍺",
+        "Vai ter que cantar no karaokê 🎤🤣"
+      ];
+      const sorteio = frases[Math.floor(Math.random()*frases.length)];
+      document.getElementById("resultadoRoleta").innerText = sorteio;
+    }
+
+    function fraseAleatoria() {
+      const frases = [
+        "Convite confirmado, dignidade cancelada 🤪🍺",
+        "Mais que uma festa, é um treino pro fígado 🍺💪",
+        "Quem não vier vai perder história pra contar segunda-feira 🤯🍻",
+        "Entrada gratuita, ressaca inclusa no pacote 🍻😂",
+        "Se beber, não dirija… mas pode dançar sem ritmo 💃🤣"
+      ];
+      const sorteio = frases[Math.floor(Math.random()*frases.length)];
+      document.getElementById("frase").innerText = sorteio;
+    }
+  </script>
+</body>
+</html>
